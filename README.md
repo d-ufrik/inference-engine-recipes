@@ -1,7 +1,7 @@
 # Inference engine recipes
 
 Portable model-serving kits for DGX Spark. Each recipe lives in its own
-self-contained directory with its own launcher, configuration, and agent runbook.
+self-contained directory with its own launcher, ready-to-use `.env`, and agent runbook.
 Recipes do not depend on files or runtime artifacts from other recipes.
 
 To turn a working deployment into a new kit, follow the [recipe authoring methodology](AUTHORING.md).

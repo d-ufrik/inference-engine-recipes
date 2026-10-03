@@ -26,8 +26,8 @@ Use a descriptive, stable directory name such as `model-quant-engine-topology/`.
 
 ```text
 model-quant-engine-topology/
-  .env.example   # editable values and portable defaults
-  .gitignore     # .env, downloaded weights, logs, caches
+  .env           # committed, ready-to-run defaults; no secrets
+  .gitignore     # downloaded weights, logs, caches, private files
   start.sh       # executable preparation, launch, health, lifecycle commands
   README.md      # quick start, requirements, defaults, configuration
   RUNBOOK.md     # complete procedure for another agent
@@ -37,9 +37,11 @@ Add a `Dockerfile`, patches, or helper scripts inside **that recipe directory** 
 
 ### Configuration contract
 
-Put editable values in `.env.example` and let `start.sh` load an optional local `.env`. Never commit `.env`. Use portable defaults such as `$HOME/models/<recipe-name>` and make the download root and **each** checkpoint's host path independently configurable. Accept absolute paths and document how relative paths resolve. A user with complete local weights must be able to set their paths and disable downloading.
+Commit a real `.env` containing complete, usable defaults. `start.sh` loads it directly; a fresh checkout must support `./start.sh --dry-run` and `./start.sh` without copying or filling in a template. Use portable defaults such as `$HOME/models/<recipe-name>` and make the download root and **each** checkpoint's host path independently configurable. Accept absolute paths and document how relative paths resolve. A user with complete local weights must be able to set their paths and disable downloading.
 
-Use clear names for the applicable settings: `DOWNLOAD_ROOT`, `MODEL_REPO`, `MODEL_DIR`, `AUTO_DOWNLOAD`, `IMAGE`, `HOST`, `PORT`, `CONTAINER_NAME`, `SERVED_MODEL_NAME`, and any engine-specific memory/context/parallelism values. Add `DRAFT_REPO` and `DRAFT_DIR` only when a separate draft is required. For a multi-node recipe, expose node addresses, users, model paths, and transport choices. Pin a known-working image or source revision and explain how to change it. Keep tokens out of `.env.example` and printed commands.
+Use clear names for the applicable settings: `DOWNLOAD_ROOT`, `MODEL_REPO`, `MODEL_DIR`, `AUTO_DOWNLOAD`, `IMAGE`, `HOST`, `PORT`, `CONTAINER_NAME`, `SERVED_MODEL_NAME`, and any engine-specific memory/context/parallelism values. Add `DRAFT_REPO` and `DRAFT_DIR` only when a separate draft is required. For a multi-node recipe, expose node addresses, users, model paths, and transport choices. Pin a known-working image or source revision and explain how to change it. Put no tokens, passwords, private host details, or user-specific paths in the committed `.env`; read secrets from the environment or a credential store.
+
+Give `.env` its own section in the recipe README. For **every** setting, show the shipped value, what it controls, and when a user should change it. Say clearly that the defaults need no initial edit. Explain which paths must change for preloaded weights, how `AUTO_DOWNLOAD` affects downloads, whether the API binds to loopback or the network, and which memory values are estimates rather than hard caps. Keep the README and `.env` in sync when defaults change.
 
 **No public recipe may require our `/AI` tree, inference script, hostnames, SSH aliases, private registry, or another site-specific service.** Internal container mount points are fine; the host-side source paths must be configurable. Do not copy fleet-only restart rules or memory assumptions without checking their effect on a clean host.
 
@@ -56,13 +58,13 @@ Quote shell paths and arguments. Reject invalid numeric values, missing weights 
 
 ## 3. Write the two user guides
 
-`README.md` is for the human operator. Include prerequisites, target and optional draft sources, tested hardware, verified serving defaults, storage and RAM expectations, quick start (`cp .env.example .env`, dry run, real start), all supported actions, path and port overrides, how to use existing weights, and links to model or engine sources. Explain any material limitation of the tested deployment.
+`README.md` is for the human operator. Include prerequisites, target and optional draft sources, tested hardware, verified serving defaults, storage and RAM expectations, quick start (dry run, real start), all supported actions, the `.env` setting table, how to use existing weights, and links to model or engine sources. Explain any material limitation of the tested deployment.
 
 `RUNBOOK.md` is an executable handoff to another agent. Give it the full sequence: read-only host inspection; disk/GPU/Docker/port checks; editing `.env`; dry run review; launch; repeated `/health` polling until success or timeout; `/v1/models` or the engine's equivalent; and what evidence to report. Include recovery steps for download interruption, image or engine failure, configuration changes, and cleanup. The agent should not need our internal documentation or an undocumented inference script.
 
 ## 4. Validate the kit
 
-Run `bash -n` on shell scripts and review the rendered dry run with default values and at least one set of custom paths and port (including a path containing spaces). Check that dry run leaves no files or containers behind. Test local-weight validation with both a complete and an incomplete checkpoint. Check that `.env`, credentials, downloaded weights, and caches are ignored by Git.
+Run `bash -n` on shell scripts and review the rendered dry run from a fresh checkout with the committed `.env`, then with custom paths and port (including a path containing spaces). Check that dry run leaves no files or containers behind. Test local-weight validation with both a complete and an incomplete checkpoint. Check that the committed `.env` has usable values and no secrets or personal paths, and that credentials, downloaded weights, and caches are ignored by Git. Compare every `.env` key and default with its README table before publishing.
 
 On a suitable target host, perform a real launch using the runbook. Wait until the script reports readiness and `health` returns success, then confirm the served model ID and make a small inference request when the engine supports one. Check logs for the intended quantization, draft/speculation mode, and actual memory footprint. Record what was tested in the recipe README. If a clean launch cannot be run, say so explicitly; a healthy existing deployment validates the extracted settings, not the new launcher end to end. Do not replace an unrelated live service just to test a kit.
 

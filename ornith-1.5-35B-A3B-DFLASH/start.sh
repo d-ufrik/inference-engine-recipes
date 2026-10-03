@@ -21,7 +21,7 @@ for arg in "$@"; do
   esac
 done
 
-# .env is local operator configuration and is executed as shell code.
+# The committed .env has ready-to-use defaults; local edits are shell code.
 if [[ -f .env ]]; then
   set -a
   # shellcheck disable=SC1091

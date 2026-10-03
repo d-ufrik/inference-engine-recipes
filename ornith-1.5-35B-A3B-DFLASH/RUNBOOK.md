@@ -6,7 +6,7 @@ Run these steps **on the target DGX Spark**. The script is self-contained; do no
 
 From this recipe directory, check `uname -m` (expect `aarch64` for DGX Spark), `nvidia-smi -L`, `docker info`, `docker info --format '{{json .Runtimes}}'`, `python3 --version`, `python3 -m venv --help`, `df -h`, and `free -h`. Confirm Docker has NVIDIA GPU support and that the chosen disk has room for roughly 24 GB of target weights, the draft, the Docker image, and download overhead. Check whether port 8000 is free using `ss -ltn` and `docker ps --format '{{.Names}} {{.Ports}}'`. Do not stop unrelated containers to claim the port; select another `PORT` if needed.
 
-Copy `.env.example` to `.env`. Edit `DOWNLOAD_ROOT`, `MODEL_DIR`, `DRAFT_DIR`, `PORT`, and `HOST` as needed. Keep the default model and image settings unless the host requires a documented change. If both checkpoints are already present, point the two paths at them and set `AUTO_DOWNLOAD=0`. The draft is a **separate** repository from the target. If authentication is needed, export `HF_TOKEN` in the current shell; do not put it in `.env` or a transcript.
+Read the included `.env` and the setting table in [README.md](README.md#the-included-env). Its values are usable as shipped: no copy or initial edit is required. Change `DOWNLOAD_ROOT`, `MODEL_DIR`, `DRAFT_DIR`, `PORT`, or `HOST` only when the target host needs different values. If both checkpoints are already present, point the two paths at them and set `AUTO_DOWNLOAD=0`. The draft is a **separate** repository from the target. If authentication is needed, export `HF_TOKEN` in the current shell; do not put it in the tracked `.env` or a transcript.
 
 ## 2. Review the plan without changing the host
 
