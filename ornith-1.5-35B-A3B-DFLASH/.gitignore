@@ -1,2 +1,7 @@
 models/
 *.log
+*.safetensors
+*.partial
+.cache/
+hf-venv/
+__pycache__/

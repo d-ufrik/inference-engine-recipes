@@ -1,0 +1,10 @@
+*.gguf
+*.partial
+*.tar.gz
+.cache/
+.state/
+engine/
+hf-venv/
+state/
+models/
+__pycache__/
